@@ -3,15 +3,18 @@ import time
 from threading import Thread
 from random import randint
 
+
 # 0 = Vacant seat
 # 1 = Occupied seat
 barbers_chairs = [0, 0, 0]
+barber_num_of_hc = [0,0,0]
 lounge_chairs = [0, 0, 0]
 extra_lounge_chairs = [0, 0, 0, 0]
 
 cash_register = threading.Semaphore(1)  # when cash register is occupied
 open_barber = threading.Semaphore(1)  # when all barbers are occupied
 open_lounge = threading.Semaphore(1)  # when all first waiting room chairs are occupied
+sp = threading.Semaphore(1) #when 30 sec passes
 stop_spawning = False
 def day():
     hours_open = 7
@@ -64,6 +67,7 @@ def customer_thread():
     seat = queue_open(barbers_chairs)
     if seat != -1:
         start_haircut(seat)
+        barber_num_of_hc[seat] = barber_num_of_hc[seat] +1
 
     # no barbers avaliable
     else:
@@ -96,7 +100,7 @@ def wait_room(seat):
 
     open_barber.acquire()
 
-    if wait_thread == 1:
+    if sp.acquire():
         print("Customer left, waited too long")
         return
 
@@ -123,8 +127,9 @@ def queue_open(queue):
     return -1
 def timer():
     time_till_leave = 30
+    sp.acquire()
     time.sleep(time_till_leave)
-    return 1
+    sp.release()
 
 def main():
     today = threading.Thread(target=day)
