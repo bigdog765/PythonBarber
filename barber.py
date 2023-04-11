@@ -14,14 +14,18 @@ open_barber = threading.Semaphore(1)  # when all barbers are occupied
 open_lounge = threading.Semaphore(1)  # when all first waiting room chairs are occupied
 stop_spawning = False
 def day():
-    hours_open = 1
+    hours_open = 7
     print('Barber shop has opened: 10:00AM')
-    time.sleep(10*hours_open)
+    time.sleep(60*hours_open)
     print('Barber shop has closed: 5:00PM')
+    global stop_spawning
+    stop_spawning = True
 def spawn_customers():
     # start spawning customers
-        spawn_time = randint(2, 20)
-        time.sleep(spawn_time)
+    spawn_time = randint(2, 20)
+    time.sleep(spawn_time)
+    global stop_spawning
+    if not stop_spawning:
         Thread(target=customer_thread).start()
 
 def start_haircut(seat):
@@ -86,7 +90,16 @@ def wait_room(seat):
         open_lounge.acquire()
 
     # wait for open barber
+    #start counting time spent in waiting room
+    wait_thread = threading.Thread(target=timer)
+    wait_thread.start()
+
     open_barber.acquire()
+
+    if wait_thread == 1:
+        print("Customer left, waited too long")
+        return
+
     print("Customer moves to barber chair")
     lounge_chairs[seat] = 0
     open_lounge.release()
@@ -108,6 +121,10 @@ def queue_open(queue):
         if chair == 0:
             return index
     return -1
+def timer():
+    time_till_leave = 30
+    time.sleep(time_till_leave)
+    return 1
 
 def main():
     today = threading.Thread(target=day)
@@ -116,6 +133,6 @@ def main():
     while not stop_spawning:
         spawn_customers()
     today.join()
-    stop_spawning = True
+
 
 main()
