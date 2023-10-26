@@ -54,7 +54,7 @@ This Python script simulates the operation of a barber shop, modeling the intera
 
 ## Recommendations
 
-- Consider adding comments to explain specific sections of the code in more detail.
+- Comments to explain specific sections of the code in more detail.
 - Document the purpose and usage of each semaphore for clarity.
 - Use more descriptive variable and function names to enhance code readability.
 
