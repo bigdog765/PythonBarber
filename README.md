@@ -1,4 +1,4 @@
-# Barber Shop Simulation
+# Barber Shop Simulation for CSC 5991 Python
 
 ## Overview
 
